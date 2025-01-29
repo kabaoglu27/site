@@ -1,0 +1,35 @@
+name: FTP Deploy
+on: [push] # Her kod gönderiminde tetiklenir
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Sanal makine türü
+
+    steps:
+      # 1. Adım: Kodu GitHub'dan çek
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Adım: Node.js kurulumu
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Projenizin Node.js sürümünü yazın
+
+      # 3. Adım: Bağımlılıkları yükle
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Adım: Projeyi build et
+      - name: Build project
+        run: npm run build
+
+      # 5. Adım: Build dosyalarını FTP'ye yükle
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./build/ # Build klasörünün yolu
+          server-dir: /public_html/ # FTP'de hedef klasör
